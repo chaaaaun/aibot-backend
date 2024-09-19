@@ -4,7 +4,13 @@ from src.main import app
 
 client = TestClient(app)
 
-def test_read_main():
-    response = client.get("/")
+def test_create_conversation():
+    response = client.get("/conversations")
     assert response.status_code == 200
-    assert response.json() == {"message": "Hello World"}
+    assert "id" in response.json()
+
+
+def test_list_conversations():
+    response = client.get("/conversations")
+    assert response.status_code == 200
+    assert "id" in response.json()

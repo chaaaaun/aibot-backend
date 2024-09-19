@@ -1,6 +1,7 @@
 from fastapi import FastAPI
+from .db import lifespan
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 @app.post("/conversations")
 async def create_conversation():
