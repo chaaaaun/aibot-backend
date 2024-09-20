@@ -11,8 +11,8 @@ class Messages(BaseModel):
 class Conversation(Document):  # This is the model
     name: str
     params: LLMParams
-    tokens: int
-    messages: list[Messages]
+    tokens: int = 0
+    messages: list[Messages] = []
 
     class Settings:
         name = "conversations"

@@ -1,16 +1,16 @@
-from typing import Union
+from typing import Union, Optional
 from pydantic import BaseModel
 
 class LLMParams(BaseModel):
     frequency_penalty: float = 0
-    logit_bias: dict = None
+    logit_bias: Optional[dict] = None
     logprobs: bool = False
-    top_logprobs: int = None
-    max_completion_tokens: int = None
+    top_logprobs: Optional[int] = None
+    max_completion_tokens: Optional[int] = None
     n: int = 1
     presence_penalty: float = 0
-    seed: int = None
-    stop: Union[str, list] = None
+    seed: Optional[int] = None
+    stop: Union[str, list, None] = None
     temperature: float = 1
     top_p: float = 1
 
