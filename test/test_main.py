@@ -99,7 +99,7 @@ async def test_delete_conversation():
         id = body["id"]
         response = client.delete(f"/conversations/{id}")
         assert response.status_code == 200
-        convo = await Conversation.find_one(id)
+        convo = await Conversation.get(id)
         assert convo is None
 
 @pytest.mark.anyio
