@@ -12,10 +12,10 @@ from .models.db import Conversation
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     DB_URI = os.getenv("DB_URI")
+    DB_NAME = os.getenv("DB_NAME")
+
     client = AsyncIOMotorClient(DB_URI)
     app.db_client = client
-    await init_beanie(database=client.db_name,
-                        document_models=[Conversation])
-
+    await init_beanie(database=client[DB_NAME], document_models=[Conversation])
     yield
     app.db_client.close()
