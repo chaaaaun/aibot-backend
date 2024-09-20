@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from .db import lifespan
-from .models.api import CreateConversationRequest, CreateConversationResponse
+from .models.api import CreateConversationRequest, CreateConversationResponse, ListConversationsItem, ListConversationsResponse
 from .models.db import Conversation
 
 app = FastAPI(lifespan=lifespan)
@@ -12,8 +12,10 @@ async def create_conversation(conversation: CreateConversationRequest) -> Create
     return CreateConversationResponse(id=convo.id.__str__())
 
 @app.get("/conversations")
-async def list_conversations():
-    return {"message": "Hello World"}
+async def list_conversations() -> ListConversationsResponse:
+    convos = await Conversation.find_all().to_list()
+    convos_models = [ListConversationsItem(id=convo.id.__str__(), name=convo.name, params=convo.params, tokens=convo.tokens) for convo in convos]
+    return ListConversationsResponse(conversations=convos_models)
 
 @app.put("/conversations/{id}")
 async def update_conversation(id: int):
