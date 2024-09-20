@@ -7,6 +7,7 @@ from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
 from fastapi.testclient import TestClient
 from contextlib import asynccontextmanager
+from openai import OpenAI
 
 from src.main import app
 from src.models import api
@@ -20,6 +21,12 @@ async def _lifespan(app: FastAPI):
     client = AsyncIOMotorClient(DB_URI)
     client.get_io_loop = asyncio.get_running_loop
     await init_beanie(database=client[DB_NAME], document_models=[Conversation])
+
+    print("Initializing LLM client")
+    API_KEY = os.getenv("API_KEY")
+    llm_client = OpenAI(api_key=API_KEY)
+    app.llm_client = llm_client
+
     yield
     client.drop_database(DB_NAME)
     client.close()
@@ -34,10 +41,12 @@ sample_conversation_updated = {
         "temperature": 0.5
     }
 }
-sample_message = {
-    "role": "user",
-    "content": "Hello, world!"
-}
+def sample_message(id: str):
+    return {
+        "convo_id": id,
+        "role": "user",
+        "content": "Hello, world!"
+    }
 
 # Override the app's lifespan context with the test lifespan context
 app.router.lifespan_context = _lifespan
@@ -105,7 +114,11 @@ async def test_delete_conversation():
 @pytest.mark.anyio
 async def test_create_query():
     with TestClient(app) as client:
-        response = client.post("/queries", data=json.dumps(sample_message))
+        response = client.post("/conversations", data=json.dumps(sample_conversation))
+        body = response.json()
+        id = body["id"]
+
+        response = client.post("/queries", data=json.dumps(sample_message(id)))
         body = response.json()
         assert response.status_code == 201
-        assert "id" in body
+        assert "content" in body
