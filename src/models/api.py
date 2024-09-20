@@ -1,6 +1,10 @@
 from typing import Union, Optional
 from pydantic import BaseModel
 
+class Message(BaseModel):
+    role: str
+    content: str
+
 class LLMParams(BaseModel):
     frequency_penalty: float = 0
     logit_bias: Optional[dict] = None
@@ -46,14 +50,16 @@ class ReadConversationResponse(BaseModel):
     messages: list[ReadConversationQueryItem]
 
 class CreateQueryRequest(BaseModel):
+    convo_id: str
     role: str
     content: str
 
 class CreateQueryResponse(BaseModel):
-    id: str
+    role: str
+    content: str
 
 class ApiErrorResponse(BaseModel):
     code: int
     message: str
-    request: dict = None
-    details: dict = None
+    request: Optional[dict] = None
+    details: Optional[dict] = None

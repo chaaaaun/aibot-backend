@@ -1,15 +1,14 @@
 import asyncio
+import os
 from beanie import init_beanie
 from fastapi import FastAPI
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from contextlib import asynccontextmanager
-
+from openai import OpenAI
 from fastapi import FastAPI
-import os
 from .models.db import Conversation
 
-# Manage the DB connection
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Initializing DB connection")
@@ -20,5 +19,11 @@ async def lifespan(app: FastAPI):
     client.get_io_loop = asyncio.get_running_loop
     app.db_client = client
     await init_beanie(database=client[DB_NAME], document_models=[Conversation])
+
+    print("Initializing LLM client")
+    API_KEY = os.getenv("API_KEY")
+    client = OpenAI(api_key=API_KEY)
+    app.llm_client = client
+    
     yield
     app.db_client.close()
