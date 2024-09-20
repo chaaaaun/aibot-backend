@@ -1,6 +1,16 @@
-version: "3.1"
-
 services:
+  server:
+    build: .
+    container_name: aibot
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongo
+    environment:
+      DB_URI: mongodb://root:admin@mongo:27017/
+      DB_NAME: aibot
+      API_KEY: 
   mongo:
     image: mongo
     restart: always
