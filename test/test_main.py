@@ -65,7 +65,7 @@ async def test_list_conversations():
         assert response.status_code == 200
         convos = await Conversation.find_all().to_list()
         for id in ids:
-            assert any(convo.id == id for convo in convos)
+            assert any(convo.id.__str__() == id for convo in convos)
 
 @pytest.mark.anyio
 async def test_get_conversation():
