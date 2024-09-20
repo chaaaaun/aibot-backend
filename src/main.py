@@ -22,8 +22,9 @@ async def update_conversation(id: str, conversation: api.UpdateConversationReque
     await convo.save()
 
 @app.get("/conversations/{id}")
-async def read_conversation(id: int):
-    return {"message": "Hello World"}
+async def read_conversation(id: str) -> api.ReadConversationResponse:
+    convo = await db.Conversation.get(id)
+    return api.ReadConversationResponse(id=convo.id.__str__(), name=convo.name, params=convo.params, tokens=convo.tokens, messages=convo.messages)
 
 @app.delete("/conversations/{id}")
 async def delete_conversation(id: int):

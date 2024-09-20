@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 from contextlib import asynccontextmanager
 
 from src.main import app
+from src.models import api
 from src.models.db import Conversation
 
 @asynccontextmanager
@@ -72,9 +73,11 @@ async def test_get_conversation():
     with TestClient(app) as client:
         response = client.post("/conversations", data=json.dumps(sample_conversation))
         body = response.json()
+        response = client.get(f"/conversations/{body['id']}")
+        body = response.json()
         assert response.status_code == 200
-        assert body["name"] == sample_conversation.name
-        assert body["params"] == sample_conversation.params.model_dump()
+        assert body["name"] == sample_conversation["name"]
+        assert body["params"] == api.LLMParams().model_dump()
 
 @pytest.mark.anyio
 async def test_update_conversation():
