@@ -1,25 +1,25 @@
 from fastapi import FastAPI
 from .db import lifespan
-from .models.api import CreateConversationRequest, CreateConversationResponse, ListConversationsItem, ListConversationsResponse
-from .models.db import Conversation
+from .models import api, db
 
 app = FastAPI(lifespan=lifespan)
 
 @app.post("/conversations")
-async def create_conversation(conversation: CreateConversationRequest) -> CreateConversationResponse:
-    convo = Conversation(name=conversation.name, params=conversation.params)
+async def create_conversation(conversation: api.CreateConversationRequest) -> api.CreateConversationResponse:
+    convo = db.Conversation(name=conversation.name, params=conversation.params)
     await convo.insert()
-    return CreateConversationResponse(id=convo.id.__str__())
+    return api.CreateConversationResponse(id=convo.id.__str__())
 
 @app.get("/conversations")
-async def list_conversations() -> ListConversationsResponse:
-    convos = await Conversation.find_all().to_list()
-    convos_models = [ListConversationsItem(id=convo.id.__str__(), name=convo.name, params=convo.params, tokens=convo.tokens) for convo in convos]
-    return ListConversationsResponse(conversations=convos_models)
+async def list_conversations() -> api.ListConversationsResponse:
+    convos = await db.Conversation.find_all().to_list()
+    convos_models = [api.ListConversationsItem(id=convo.id.__str__(), name=convo.name, params=convo.params, tokens=convo.tokens) for convo in convos]
+    return api.ListConversationsResponse(conversations=convos_models)
 
-@app.put("/conversations/{id}")
-async def update_conversation(id: int):
-    return {"message": "Hello World"}
+@app.put("/conversations/{id}", status_code=201)
+async def update_conversation(id: str, conversation: api.UpdateConversationRequest):
+    convo = db.Conversation(id=id, name=conversation.name, params=conversation.params)
+    await convo.save()
 
 @app.get("/conversations/{id}")
 async def read_conversation(id: int):

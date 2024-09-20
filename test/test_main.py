@@ -84,9 +84,9 @@ async def test_update_conversation():
         id = body["id"]
         response = client.put(f"/conversations/{id}", data=json.dumps(sample_conversation_updated))
         assert response.status_code == 201
-        convo = await Conversation.find_one(id)
-        assert convo.name == sample_conversation_updated.name
-        assert convo.params.temperature == sample_conversation_updated.params.temperature
+        convo = await Conversation.get(id)
+        assert convo.name == sample_conversation_updated["name"]
+        assert convo.params.temperature == sample_conversation_updated["params"]["temperature"]
 
 @pytest.mark.anyio
 async def test_delete_conversation():
